@@ -3,6 +3,7 @@ import json
 import base64
 import argparse
 import re
+import time
 from io import BytesIO
 from openai import OpenAI
 
@@ -11,6 +12,51 @@ TOKEN_PATTERN = re.compile(
 )
 PUNCT_NO_SPACE_BEFORE = set(".,!?;:)]}。，、！？；：）」』】》〉’”")
 PUNCT_NO_SPACE_AFTER = set("([{（「『【《〈‘“")
+
+def _looks_like_html_error(text: str) -> bool:
+    if not isinstance(text, str):
+        return False
+    lower_text = text.strip().lower()
+    return "<!doctype html" in lower_text or "<html" in lower_text
+
+def _parse_ratio_point(point_data):
+    if isinstance(point_data, (list, tuple)) and len(point_data) >= 2:
+        raw_x, raw_y = point_data[0], point_data[1]
+    elif isinstance(point_data, dict):
+        raw_x = point_data.get("x", point_data.get("X"))
+        raw_y = point_data.get("y", point_data.get("Y"))
+    else:
+        return None
+
+    try:
+        x = _clamp(float(raw_x), 0.0, 1.0)
+        y = _clamp(float(raw_y), 0.0, 1.0)
+        return x, y
+    except (TypeError, ValueError):
+        return None
+
+def _normalize_corners_to_center_wh(corners_data):
+    if not isinstance(corners_data, (list, tuple)) or len(corners_data) < 4:
+        return None
+    points = []
+    for point_data in corners_data[:4]:
+        parsed = _parse_ratio_point(point_data)
+        if parsed is None:
+            return None
+        points.append(parsed)
+
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    left = min(xs)
+    right = max(xs)
+    top = min(ys)
+    bottom = max(ys)
+
+    x = (left + right) / 2.0
+    y = (top + bottom) / 2.0
+    w = max(0.0, right - left)
+    h = max(0.0, bottom - top)
+    return x, y, w, h
 
 def encode_image_to_base64(image_path: str, max_size: int = 1024) -> str:
     """載入圖片並按比例將長邊縮放至 max_size，然後轉換為 Base64 字串供 API 使用"""
@@ -37,56 +83,108 @@ def encode_image_to_base64(image_path: str, max_size: int = 1024) -> str:
     img.save(buffered, format="JPEG", quality=85)
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-def call_llm_for_manga_page(client: OpenAI, base64_image: str) -> str:
-    """呼叫多模態模型取得翻譯與排版 JSON"""
-    
-    # 精簡版的 System Prompt (移除動態術語 RAG)
+def call_llm_for_manga_page(
+    client: OpenAI,
+    base64_image: str,
+    max_retries: int = 3,
+    retry_base_seconds: float = 2.0,
+) -> str:
+    """呼叫多模態模型取得最小可渲染 JSON"""
+
+    # 最小輸出欄位：只保留 render 必要資料
     system_prompt = """
-你是一個頂級的漫畫在地化翻譯專家與排版設計師。
-請找出圖片中所有文字，並回傳嚴格的 JSON 檔案。對於每一個對話框，你必須提供以下資訊：
+你是一個頂級的漫畫在地化翻譯專家。
+請找出圖片中所有可翻譯文字，並回傳嚴格 JSON。
 
-1. `box_id`: 唯一的 ID，例如 "box_01"。
-2. `original_text`: 從圖片上辨識出的原文（精確的 OCR）。
-3. `translated_text`: 結合上下文與角色情緒，將原文翻譯為流暢生動的繁體中文。
-4. `position`: 該對話框在圖片上的精確位置。
-   ⚠️ 【極度重要座標規則】：
-   你必須給出相對座標 `[x, y, w, h]`，其所有數值必須介於 0.0 到 1.0 之間。請提供 3 到 4 位小數點的精確度（例如 0.825 或 0.1234）。
-   - `x`: 對話框中心的 X 座標比例 (從圖片左側算起)。
-   - `y`: 對話框中心的 Y 座標比例 (從圖片上方算起)。
-   - `w`: 對話框最大寬度的比例。
-   - `h`: 對話框最大高度的比例。
-5. `render_config`: 根據你的翻譯與對話框形狀，為台灣繁體中文設計的排版建議。
-   - `alignment`: "left" (靠左/旁白), "center" (置中/常用), "right" (靠右)。
-   - `direction`: "horizontal" (繁中預設橫排), "vertical" (僅限極度窄高的氣泡框使用)。
-   - `font_size_offset`: 整數 (預設 0)。若畫面呈現大吼請給正整數 (+2 ~ +5)；若為小聲碎念給負數 (-1 ~ -3)。
-   - `line_spacing`: 浮點數，行距，預設 0.2。
-   - `fg_color`: [R, G, B]，多為黑字 [0, 0, 0]。若為深色底圖請改為白字 [255, 255, 255]。
-   - `bg_color`: [R, G, B]，字體外層的描邊顏色。通常與字體顏色相反，確保文字清晰（例如黑字配白邊 [255, 255, 255]）。
+只允許以下結構與欄位：
+{
+  "dialogues": [
+    {
+      "translated_text": "流暢生動的台灣繁體中文",
+      "position": {
+        "corners": [
+          [x1, y1],
+          [x2, y2],
+          [x3, y3],
+          [x4, y4]
+        ]
+      }
+    }
+  ]
+}
 
-確保整份輸出為有效的 JSON 格式，根節點必須包含 `dialogues` (陣列) 與 `global_suggestions` (物件)。
+規則：
+1. 四個角點都必須在 0.0 到 1.0 之間，保留 3 到 4 位小數。
+2. `corners` 依照「左上、右上、右下、左下」順序輸出。
+3. 僅輸出 `translated_text` 與 `position`，不要附加其他鍵。
 """
 
-    # 使用 OpenRouter 呼叫具備 推理 (Reasoning) 能力的模型
-    response = client.chat.completions.create(
-        model="qwen/qwen3.5-397b-a17b", # 根據使用者要求更改模型
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [
-                {"type": "text", "text": "請分析這頁漫畫並輸出指定的 JSON 格式。"},
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-            ]},
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [
-                {"type": "text", "text": "請分析這頁漫畫並輸出指定的 JSON 格式。"},
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-            ]}
-        ],
-        response_format={"type": "json_object"}, # 強制輸出 JSON 格式
-        extra_body={"reasoning": {"enabled": False}}, # 開啟 reasoning 以提高翻譯與座標精確度
-        temperature=0.3 # 降低溫度以獲取穩定輸出
-    )
-    
-    return response.choices[0].message.content
+    print(f"   [INFO] [LLM] 準備請求模型，影像 base64 長度: {len(base64_image)}")
+
+    last_error = ""
+    for attempt in range(1, max_retries + 1):
+        print(f"   [INFO] [LLM] 呼叫嘗試 {attempt}/{max_retries}")
+        try:
+            # 使用 OpenRouter 呼叫具備 推理 (Reasoning) 能力的模型
+            response = client.chat.completions.create(
+                model="qwen/qwen3.5-397b-a17b", # 根據使用者要求更改模型
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": [
+                        {"type": "text", "text": "請輸出最小可渲染 JSON。"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                    ]},
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": [
+                        {"type": "text", "text": "請輸出最小可渲染 JSON。"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                    ]}
+                ],
+                response_format={"type": "json_object"}, # 強制輸出 JSON 格式
+                extra_body={"reasoning": {"enabled": False}},
+                temperature=0.3
+            )
+        except Exception as e:
+            last_error = str(e)
+            short_err = last_error if len(last_error) < 600 else last_error[:600] + " ...[truncated]"
+            print(f"   [WARN] [LLM] API 呼叫失敗: {short_err}")
+            if attempt < max_retries:
+                wait_s = retry_base_seconds * attempt
+                print(f"   [INFO] [LLM] {wait_s:.1f}s 後重試")
+                time.sleep(wait_s)
+                continue
+            raise RuntimeError(f"LLM API 呼叫失敗（重試 {max_retries} 次）: {last_error}")
+
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            prompt_tokens = getattr(usage, "prompt_tokens", "n/a")
+            completion_tokens = getattr(usage, "completion_tokens", "n/a")
+            total_tokens = getattr(usage, "total_tokens", "n/a")
+            print(
+                f"   [INFO] [LLM] token usage: prompt={prompt_tokens}, completion={completion_tokens}, total={total_tokens}"
+            )
+
+        llm_content = response.choices[0].message.content or ""
+        print(f"   [INFO] [LLM] 回傳字元數: {len(llm_content)}")
+        print("   [DEBUG] [LLM] 原始輸出 BEGIN")
+        print(llm_content)
+        print("   [DEBUG] [LLM] 原始輸出 END")
+
+        if not llm_content.strip():
+            last_error = "LLM 回傳空字串"
+            print(f"   [WARN] [LLM] {last_error}")
+        elif _looks_like_html_error(llm_content):
+            last_error = "LLM 回傳 HTML 錯誤頁（可能是上游 5xx）"
+            print(f"   [WARN] [LLM] {last_error}")
+        else:
+            return llm_content
+
+        if attempt < max_retries:
+            wait_s = retry_base_seconds * attempt
+            print(f"   [INFO] [LLM] {wait_s:.1f}s 後重試")
+            time.sleep(wait_s)
+
+    raise RuntimeError(f"LLM 回傳非預期內容（重試 {max_retries} 次）: {last_error}")
 
 def _clamp(value: float, lower: float, upper: float) -> float:
     return max(lower, min(upper, value))
@@ -162,22 +260,64 @@ def _append_token(existing_text: str, token: str) -> str:
     return existing_text + separator + token
 
 def normalize_position(position_data, image_width: int, image_height: int, min_box_px: int = 12):
-    if isinstance(position_data, list) and len(position_data) >= 4:
-        x, y, w, h = position_data[0], position_data[1], position_data[2], position_data[3]
-    elif isinstance(position_data, dict):
-        x = position_data.get("x", 0)
-        y = position_data.get("y", 0)
-        w = position_data.get("w", 0)
-        h = position_data.get("h", 0)
+    x = y = w = h = None
+
+    if isinstance(position_data, dict):
+        # 新格式：{ "corners": [[x1,y1],[x2,y2],[x3,y3],[x4,y4]] }
+        if "corners" in position_data:
+            parsed = _normalize_corners_to_center_wh(position_data.get("corners"))
+            if parsed is not None:
+                x, y, w, h = parsed
+        # 相容格式：{x1,y1,x2,y2,x3,y3,x4,y4}
+        elif all(k in position_data for k in ("x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4")):
+            corners = [
+                [position_data.get("x1"), position_data.get("y1")],
+                [position_data.get("x2"), position_data.get("y2")],
+                [position_data.get("x3"), position_data.get("y3")],
+                [position_data.get("x4"), position_data.get("y4")],
+            ]
+            parsed = _normalize_corners_to_center_wh(corners)
+            if parsed is not None:
+                x, y, w, h = parsed
+        # 舊格式相容：{x,y,w,h}
+        else:
+            try:
+                x = _clamp(float(position_data.get("x", 0)), 0.0, 1.0)
+                y = _clamp(float(position_data.get("y", 0)), 0.0, 1.0)
+                w = _clamp(float(position_data.get("w", 0)), 0.0, 1.0)
+                h = _clamp(float(position_data.get("h", 0)), 0.0, 1.0)
+            except (TypeError, ValueError):
+                return None
+    elif isinstance(position_data, list):
+        # 新格式相容：[[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+        if len(position_data) >= 4 and isinstance(position_data[0], (list, tuple, dict)):
+            parsed = _normalize_corners_to_center_wh(position_data)
+            if parsed is not None:
+                x, y, w, h = parsed
+        # 新格式相容：[x1,y1,x2,y2,x3,y3,x4,y4]
+        elif len(position_data) >= 8:
+            corners = [
+                [position_data[0], position_data[1]],
+                [position_data[2], position_data[3]],
+                [position_data[4], position_data[5]],
+                [position_data[6], position_data[7]],
+            ]
+            parsed = _normalize_corners_to_center_wh(corners)
+            if parsed is not None:
+                x, y, w, h = parsed
+        # 舊格式相容：[x,y,w,h]
+        elif len(position_data) >= 4:
+            try:
+                x = _clamp(float(position_data[0]), 0.0, 1.0)
+                y = _clamp(float(position_data[1]), 0.0, 1.0)
+                w = _clamp(float(position_data[2]), 0.0, 1.0)
+                h = _clamp(float(position_data[3]), 0.0, 1.0)
+            except (TypeError, ValueError):
+                return None
     else:
         return None
 
-    try:
-        x = _clamp(float(x), 0.0, 1.0)
-        y = _clamp(float(y), 0.0, 1.0)
-        w = _clamp(float(w), 0.0, 1.0)
-        h = _clamp(float(h), 0.0, 1.0)
-    except (TypeError, ValueError):
+    if x is None or y is None or w is None or h is None:
         return None
 
     min_w_ratio = min_box_px / max(image_width, 1)
@@ -803,6 +943,7 @@ def process_directory(input_dir: str, output_dir: str):
     for img_path in image_paths:
         base_name = os.path.basename(img_path)
         print(f"[INFO] [{base_name}] 開始處理...")
+        json_result_str = ""
         
         try:
             # 1. 讀圖編碼
@@ -817,6 +958,11 @@ def process_directory(input_dir: str, output_dir: str):
             
             # 3. 解析 JSON
             result_data = json.loads(json_result_str)
+            dialogues_count = len(result_data.get("dialogues", []))
+            print(f"   [INFO] [JSON] 解析成功，dialogues 數量: {dialogues_count}")
+            if dialogues_count > 0:
+                first_dialogue = result_data["dialogues"][0]
+                print(f"   [DEBUG] [JSON] 第一筆欄位: {list(first_dialogue.keys())}")
             
             # 4. 儲存 JSON 至目的資料夾
             file_name_without_ext = os.path.splitext(base_name)[0]
@@ -833,12 +979,23 @@ def process_directory(input_dir: str, output_dir: str):
             
         except json.JSONDecodeError:
             print(f"   [ERROR] JSON 解析失敗，模型回傳的格式不正確！")
+            if json_result_str:
+                print(f"   [DEBUG] [LLM] 解析失敗時的原始輸出字元數: {len(json_result_str)}")
+                print("   [DEBUG] [LLM] 解析失敗時原始輸出 BEGIN")
+                print(json_result_str)
+                print("   [DEBUG] [LLM] 解析失敗時原始輸出 END")
             # 也可以把錯誤字串存下來方便 debug
             debug_path = os.path.join(output_dir, f"{os.path.basename(img_path)}_error.txt")
             with open(debug_path, "w", encoding="utf-8") as f:
                 f.write(json_result_str)
         except Exception as e:
-            print(f"   [ERROR] 處理發生未知錯誤：{str(e)}\n")
+            error_text = str(e)
+            print(f"   [ERROR] 處理發生未知錯誤：{error_text}\n")
+            if _looks_like_html_error(error_text):
+                debug_path = os.path.join(output_dir, f"{os.path.basename(img_path)}_http_error.html")
+                with open(debug_path, "w", encoding="utf-8") as f:
+                    f.write(error_text)
+                print(f"   [DEBUG] 已保存 HTML 錯誤頁至 {debug_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="多模態 LLM 漫畫翻譯 CLI 工具")
