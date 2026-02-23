@@ -8,6 +8,7 @@ build
 wandb
 CLAUDE.md
 GEMINI.md
+AGENT.md
 .claude
 .gemini
 MagicMock
