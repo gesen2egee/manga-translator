@@ -74,10 +74,15 @@ def call_llm_for_manga_page(client: OpenAI, base64_image: str) -> str:
             {"role": "user", "content": [
                 {"type": "text", "text": "請分析這頁漫畫並輸出指定的 JSON 格式。"},
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+            ]},
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": [
+                {"type": "text", "text": "請分析這頁漫畫並輸出指定的 JSON 格式。"},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
             ]}
         ],
         response_format={"type": "json_object"}, # 強制輸出 JSON 格式
-        extra_body={"reasoning": {"enabled": True}}, # 開啟 reasoning 以提高翻譯與座標精確度
+        extra_body={"reasoning": {"enabled": False}}, # 開啟 reasoning 以提高翻譯與座標精確度
         temperature=0.3 # 降低溫度以獲取穩定輸出
     )
     
@@ -122,9 +127,14 @@ def _line_height(font, draw):
     return max(1, fallback_h)
 
 def _font_with_size(font_path: str, base_font, font_size: int):
+    try:
+        from PIL import ImageFont
+    except ImportError:
+        return base_font
+
     if font_path and os.path.exists(font_path):
         try:
-            return base_font.__class__.truetype(font_path, font_size)
+            return ImageFont.truetype(font_path, font_size)
         except Exception:
             pass
     if hasattr(base_font, "font_variant"):
@@ -438,12 +448,15 @@ def choose_direction_with_fallback(
     elif alt_fits and not pref_fits:
         chosen = alt_layout
     elif pref_fits and alt_fits:
-        if alt_layout["fit_score"] + 0.04 < pref_layout["fit_score"]:
+        if alt_layout["fit_score"] + 0.20 < pref_layout["fit_score"]:
             chosen = alt_layout
         else:
             chosen = pref_layout
     else:
-        chosen = pref_layout if pref_layout["fit_score"] <= alt_layout["fit_score"] else alt_layout
+        if pref_layout["fit_score"] <= alt_layout["fit_score"] + 0.20:
+            chosen = pref_layout
+        else:
+            chosen = alt_layout
 
     chosen["preferred_direction"] = pref
     chosen["switched"] = chosen["direction"] != pref
@@ -622,9 +635,9 @@ def render_text_on_image(image_path: str, result_data: dict, output_path: str):
             fg_color = _sanitize_rgb(config.get("fg_color"), (0, 0, 0))
             bg_color = _sanitize_rgb(config.get("bg_color"), (255, 255, 255))
 
-            font_min = max(10, int(min(box_w, box_h) * 0.18))
+            font_min = 8
             font_max = max(font_min + 2, min(128, int(max(box_w, box_h) * 0.9)))
-            fit_padding = 0.92
+            fit_padding = 1.00
 
             chosen = choose_direction_with_fallback(
                 draw,
