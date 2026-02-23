@@ -1,0 +1,133 @@
+{
+  "dialogues": [
+    {
+      "box_id": "box_01",
+      "original_text": "VictimGirls 10",
+      "translated_text": "VictimGirls 10",
+      "position": [
+        0.5,
+        0.08,
+        0.85,
+        0.08
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "box_id": "box_02",
+      "original_text": "上校个人汉化，本作品只用于学习交流使用，严禁用于任何商业用途，请与下载后24小时内删除，上校不负任何转载下载后的责任，如果喜欢请支持正版作品",
+      "translated_text": "上校個人漢化，本作品僅供學習交流使用，嚴禁用於任何商業用途，請於下載後24小時內刪除。上校不負任何轉載或下載後的責任，若喜歡請支持正版作品。",
+      "position": [
+        0.7,
+        0.32,
+        0.45,
+        0.35
+      ],
+      "render_config": {
+        "alignment": "left",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_03",
+      "original_text": "感谢“zzd”君提供的人名翻译援助！！！",
+      "translated_text": "感謝「zzd」君提供的人名翻譯援助！！！",
+      "position": [
+        0.28,
+        0.58,
+        0.5,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "left",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          128,
+          0,
+          64
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_04",
+      "original_text": "来一起把狗和猫调教吧~",
+      "translated_text": "來一起調教狗和貓吧～",
+      "position": [
+        0.7,
+        0.63,
+        0.45,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    }
+  ],
+  "global_suggestions": {
+    "font_family": "微軟正黑體",
+    "style_notes": "本頁為漫畫扉頁，包含標題、免責聲明、致謝與開場白。標題 'VictimGirls 10' 建議使用粗體無襯線字體（如 Impact 或 黑體），並加上陰影或外框以突顯。免責聲明氣泡框內文字應保持清晰易讀，行距適中。致謝文字使用深紅色以區分。開場白氣泡框可搭配輕微手寫風格字體，展現俏皮語氣。整體排版需保留原圖留白，避免遮擋人物與道具。",
+    "color_palette": {
+      "primary_text": [
+        0,
+        0,
+        0
+      ],
+      "accent_text": [
+        128,
+        0,
+        64
+      ],
+      "background_stroke": [
+        255,
+        255,
+        255
+      ]
+    }
+  }
+}

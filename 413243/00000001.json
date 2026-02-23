@@ -1,0 +1,148 @@
+{
+  "dialogues": [
+    {
+      "box_id": "box_01",
+      "original_text": "VictimGirls",
+      "translated_text": "受害少女",
+      "position": [
+        0.5,
+        0.075,
+        0.65,
+        0.06
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 5,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "box_id": "box_02",
+      "original_text": "10",
+      "translated_text": "10",
+      "position": [
+        0.5,
+        0.125,
+        0.04,
+        0.025
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 2,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "box_id": "box_03",
+      "original_text": "IT'S TRAINING CATS AND DOGS.",
+      "translated_text": "這是貓與狗的調教課程。",
+      "position": [
+        0.5,
+        0.145,
+        0.35,
+        0.02
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": -1,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "box_id": "box_04",
+      "original_text": "X-rate",
+      "translated_text": "限制級",
+      "position": [
+        0.93,
+        0.235,
+        0.07,
+        0.025
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "box_id": "box_05",
+      "original_text": "Fatalpulse presents",
+      "translated_text": "Fatalpulse 出品",
+      "position": [
+        0.5,
+        0.965,
+        0.25,
+        0.02
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": -2,
+        "line_spacing": 0.2,
+        "fg_color": [
+          255,
+          255,
+          255
+        ],
+        "bg_color": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "global_suggestions": {
+    "font_family": "微軟正黑體 或 思源黑體 Heavy",
+    "style_notes": "封面標題需要強烈的視覺衝擊力，建議使用粗體字並添加金屬質感或漸層效果以貼近原圖風格。副標題與底部文字保持清晰可讀即可。由於背景較暗且複雜，所有文字建議使用白色填充搭配黑色粗描邊，以確保對比度。",
+    "color_palette": {
+      "primary_text": "#FFFFFF",
+      "stroke": "#000000",
+      "accent": "#FFD700"
+    }
+  }
+}

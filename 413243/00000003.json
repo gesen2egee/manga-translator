@@ -1,0 +1,522 @@
+{
+  "dialogues": [
+    {
+      "box_id": "box_01",
+      "original_text": "ギシ\nギシ\nギシ",
+      "translated_text": "嘎吱\n嘎吱\n嘎吱",
+      "position": [
+        0.165,
+        0.12,
+        0.15,
+        0.25
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_02",
+      "original_text": "NYA",
+      "translated_text": "喵",
+      "position": [
+        0.32,
+        0.06,
+        0.08,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_03",
+      "original_text": "ポ\nポ\nポ\nポ",
+      "translated_text": "啵\n啵\n啵\n啵",
+      "position": [
+        0.38,
+        0.15,
+        0.1,
+        0.2
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_04",
+      "original_text": "ズル\nズル",
+      "translated_text": "啾滋\n啾滋",
+      "position": [
+        0.62,
+        0.18,
+        0.1,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_05",
+      "original_text": "FUNYAH",
+      "translated_text": "噗呀",
+      "position": [
+        0.65,
+        0.28,
+        0.1,
+        0.08
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_06",
+      "original_text": "ズル\nズル",
+      "translated_text": "啾滋\n啾滋",
+      "position": [
+        0.52,
+        0.32,
+        0.1,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_07",
+      "original_text": "ポ\nポ",
+      "translated_text": "啵\n啵",
+      "position": [
+        0.72,
+        0.12,
+        0.08,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_08",
+      "original_text": "ズル\nズル",
+      "translated_text": "啾滋\n啾滋",
+      "position": [
+        0.88,
+        0.18,
+        0.1,
+        0.15
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_09",
+      "original_text": "ポ\nポ",
+      "translated_text": "啵\n啵",
+      "position": [
+        0.88,
+        0.28,
+        0.08,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_10",
+      "original_text": "NYAH",
+      "translated_text": "喵啊",
+      "position": [
+        0.82,
+        0.3,
+        0.1,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_11",
+      "original_text": "ギシ\nギシ",
+      "translated_text": "嘎吱\n嘎吱",
+      "position": [
+        0.78,
+        0.32,
+        0.1,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_12",
+      "original_text": "ズル\nズル\nズル\nズル",
+      "translated_text": "啾滋\n啾滋\n啾滋\n啾滋",
+      "position": [
+        0.15,
+        0.55,
+        0.25,
+        0.3
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_13",
+      "original_text": "ふぅっ",
+      "translated_text": "呼啊",
+      "position": [
+        0.12,
+        0.82,
+        0.08,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": -2,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_14",
+      "original_text": "はぅん",
+      "translated_text": "哈嗯",
+      "position": [
+        0.22,
+        0.85,
+        0.08,
+        0.05
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": -2,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_15",
+      "original_text": "バチッ\nバチッ",
+      "translated_text": "啪滋\n啪滋",
+      "position": [
+        0.45,
+        0.5,
+        0.15,
+        0.2
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_16",
+      "original_text": "ギシ",
+      "translated_text": "嘎吱",
+      "position": [
+        0.78,
+        0.42,
+        0.1,
+        0.08
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "horizontal",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_17",
+      "original_text": "ギシ",
+      "translated_text": "嘎吱",
+      "position": [
+        0.88,
+        0.65,
+        0.1,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_18",
+      "original_text": "ギシ\nギシ",
+      "translated_text": "嘎吱\n嘎吱",
+      "position": [
+        0.62,
+        0.92,
+        0.15,
+        0.1
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 0,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "box_id": "box_19",
+      "original_text": "喵嗚~",
+      "translated_text": "喵嗚~",
+      "position": [
+        0.42,
+        0.85,
+        0.15,
+        0.15
+      ],
+      "render_config": {
+        "alignment": "center",
+        "direction": "vertical",
+        "font_size_offset": 2,
+        "line_spacing": 0.2,
+        "fg_color": [
+          0,
+          0,
+          0
+        ],
+        "bg_color": [
+          255,
+          255,
+          255
+        ]
+      }
+    }
+  ],
+  "global_suggestions": {
+    "font_family": "DFPMaruGothic-W5",
+    "general_style": "本頁為高張力的動作場景，建議使用筆畫較粗的圓體或黑體來表現衝擊感。擬聲詞（如嘎吱、啾滋）的字體大小應比對白更大，並可適當旋轉以配合動作方向。",
+    "color_mode": "Grayscale"
+  }
+}
